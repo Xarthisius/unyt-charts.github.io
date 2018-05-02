@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Bar Chart</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
+    <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+    <style>
+    canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    </style>
+</head>
+
+<body>
+    <button id="toggleData">Toggle Dataset</button>
+    <div id="container" style="width: 75%; height: 3500px;">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        window.chartColors = { 
+          red: 'rgb(255, 99, 132)',
+          orange: 'rgb(255, 159, 64)',
+          yellow: 'rgb(255, 205, 86)',
+          lightGreen: 'rgb(18, 173, 42)',
+          darkGreen: 'rgb(75, 140, 97)',
+          blueish: 'rgb(0, 230, 230)',
+          blue: 'rgb(54, 162, 235)',
+          purple: 'rgb(153, 102, 255)',
+          grey: 'rgb(201, 203, 207)'
+        };
+
+        var type = 'small';
+
+        document.getElementById('toggleData').addEventListener('click', function() {
+          type = type === 'small' ? 'big' : 'small';
+          var data = JSON.parse(sessionStorage.getItem('data'));
+          window.myBar.data = data[type];
+          window.myBar.update();
+        });
+
+        window.onload = function() {
+            var jsonData = $.ajax({
+              url: 'https://unyt.xarthisius.xyz/histogram',
+              data: {region: 'EU'},
+              dataType: 'json',
+            }).done(function (results) {
+              sessionStorage.setItem('data', JSON.stringify(results));
+              var ctx = document.getElementById("canvas").getContext("2d");
+              window.myBar = new Chart(ctx, {
+                  type: 'horizontalBar',
+                  data: results[type],
+                  options: {
+                      tooltips: {
+                          mode: 'index',
+                          intersect: true
+                      },
+                      maintainAspectRatio: false,
+                      responsive: true,
+                      legend: {
+                          position: 'top',
+                      },
+                      title: {
+                          display: true,
+                          text: 'Chart.js Bar Chart'
+                      }
+                  }
+              });
+              window.myBar.height = 3500;
+            });
+        };
+    </script>
+</body>
+
+</html>
